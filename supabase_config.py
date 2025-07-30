@@ -41,14 +41,14 @@ MOCK_CERTIFICATES = [
     # Add others if needed
 ]
 
-def get_certificate_by_id(certificate_id: str):
-    """Get certificate data from Supabase by ID (with fallback to mock)"""
+def get_certificate_by_id(certificate_id: str, base_url: str = ""):
+    """Get certificate data from Supabase by certificate ID and auto-set URL if missing."""
     global supabase
 
     if not supabase:
-        print("⚠️ Using mock data")
+        print("Supabase client not initialized, using mock data")
         for cert in MOCK_CERTIFICATES:
-            if cert['certificate_id'] == certificate_id:
+            if cert['certificate_id'].strip().lower() == certificate_id.strip().lower():
                 return {
                     "student_name": cert['student_name'],
                     "course": cert['course_name'],
@@ -58,23 +58,40 @@ def get_certificate_by_id(certificate_id: str):
         return None
 
     try:
-        print(f"🔎 Fetching certificate: {certificate_id}")
-        response = supabase.table('certificates').select('*').eq('certificate_id', certificate_id).execute()
+        print(f"Fetching certificate {certificate_id} from Supabase...")
+        response = supabase.table('certificates')\
+            .select('*')\
+            .eq('certificate_id', certificate_id.strip())\
+            .execute()
+
+        print(f"Supabase response: {response}")
 
         if response.data and len(response.data) > 0:
             cert = response.data[0]
+
+            # Optional fix: sanitize certificate_url if missing
+            if not cert.get("certificate_url") and base_url:
+                cert_url = f"{base_url}/cert/{certificate_id.strip()}"
+                supabase.table("certificates")\
+                    .update({"certificate_url": cert_url})\
+                    .eq("certificate_id", certificate_id.strip())\
+                    .execute()
+                print(f"Set certificate_url: {cert_url}")
+
             return {
                 "student_name": cert['student_name'],
                 "course": cert['course_name'],
                 "completion_date": cert['completion_date'],
                 "certificate_id": cert['certificate_id']
             }
-        else:
-            print(f"❌ Certificate not found: {certificate_id}")
-            return None
-    except Exception as e:
-        print(f"⚠️ Error fetching from Supabase: {e}")
+
+        print("❌ Certificate not found in Supabase.")
         return None
+
+    except Exception as e:
+        print(f"Error fetching certificate: {e}")
+        return None
+
 
 
 def get_all_certificates():
