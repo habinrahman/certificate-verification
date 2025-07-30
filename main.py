@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Request
 import os
 from supabase_config import get_certificate_by_id, get_all_certificates, supabase
 
@@ -61,32 +62,10 @@ async def test_page():
         raise HTTPException(status_code=500, detail=f"Error serving test page: {str(e)}")
 
 
-@app.get("/api/certificate/{cert_id}")
-async def get_certificate(cert_id: str):
-    print(f"Received request for certificate_id: {cert_id}")
-    try:
-        certificate_data = get_certificate_by_id(cert_id)
-        print(f"Certificate data: {certificate_data}")
-        if certificate_data:
-            return {
-                "success": True,
-                "certificate": {
-                    "id": certificate_data["certificate_id"],
-                    "recipient_name": certificate_data["student_name"],
-                    "course_name": certificate_data["course"],
-                    "issue_date": certificate_data["completion_date"],
-                    "issuer": "MicroDegree Academy"
-                }
-            }
-        else:
-            return JSONResponse(status_code=404, content={"success": False, "message": "Certificate not found"})
-    except Exception as e:
-        print(f"Exception occurred: {e}")
-        return JSONResponse(status_code=500, content={"error": str(e)})
 
 
 @app.get("/cert/{certificate_id}")
-async def serve_certificate_page(certificate_id: str):
+async def serve_certificate_page(certificate_id: str, request: Request):
     try:
         with open("certificate.html", "r", encoding="utf-8") as f:
             html_content = f.read()
@@ -98,13 +77,17 @@ async def serve_certificate_page(certificate_id: str):
                 status_code=404,
             )
 
-        # Optional: auto-update URL if not set
-        cert_url = f"https://certificate-three-wheat.vercel.app/cert/{certificate_id}"
+        # Use current domain dynamically (works for Render or Vercel)
+        current_domain = str(request.base_url).rstrip("/")
+        cert_url = f"{current_domain}/cert/{certificate_id}"
+
         if not cert_data.get("certificate_url"):
+            # Optional: store certificate URL in database
             supabase.table("certificates").update({
                 "certificate_url": cert_url
             }).eq("certificate_id", certificate_id).execute()
 
+        # Replace placeholders in HTML
         html_content = (
             html_content.replace("{{student_name}}", cert_data["student_name"])
             .replace("{{course_name}}", cert_data["course"])
@@ -112,6 +95,7 @@ async def serve_certificate_page(certificate_id: str):
             .replace("{{certificate_id}}", cert_data["certificate_id"])
         )
         return HTMLResponse(content=html_content)
+
     except Exception as e:
         return HTMLResponse(
             content=f"<h2 style='text-align:center;color:#b91c1c;margin-top:3em'>Error: {str(e)}</h2>",
@@ -123,9 +107,10 @@ async def serve_certificate_page(certificate_id: str):
 async def get_all_certificates_route():
     try:
         certificates = get_all_certificates()
-        return {"certificates": certificates}
+        return {"success": True, "certificates": certificates}
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+
 
 
 @app.get("/health")

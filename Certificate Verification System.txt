@@ -56,34 +56,34 @@ Academic Institutions - Digital certificate management
 
 
 
-http://localhost:5000/cert/HR08 - HABIN's Python Certificate
-http://localhost:5000/cert/test123 - Michael Chen's Data Science Certificate
-http://localhost:5000/cert/CERT-001 - Habin Rahman's ReactJS Certificate
+http://localhost:8000/cert/HR08 - HABIN's Python Certificate
+http://localhost:8000/cert/test123 - Michael Chen's Data Science Certificate
+http://localhost:8000/cert/CERT-001 - Habin Rahman's ReactJS Certificate
 
 
 🌐 Main Application URLs
 Primary Pages:
-🏠 Home Page: http://localhost:5000/home
-🔍 Verification Portal: http://localhost:5000/ (main verification page)
-🧪 Test Page: http://localhost:5000/test
+🏠 Home Page: http://localhost:000/home
+🔍 Verification Portal: http://localhost:8000/ (main verification page)
+🧪 Test Page: http://localhost:8000/test
 API Endpoints:
-📜 Get Certificate: http://localhost:5000/api/certificate/{cert_id}
-🏥 Health Check: http://localhost:5000/health
-🔧 Debug Info: http://localhost:5000/debug
-📊 Debug All Certs: http://localhost:5000/debug/all-certs
+📜 Get Certificate: http://localhost:8000/api/certificate/{cert_id}
+🏥 Health Check: http://localhost:8000/health
+🔧 Debug Info: http://localhost:8000/debug
+📊 Debug All Certs: http://localhost:8000/debug/all-certs
 Certificate Display:
-📄 Certificate Page: http://localhost:5000/certificate/{cert_id}
-🔗 Direct Verification: http://localhost:5000/{cert_id} (auto-verifies)
+📄 Certificate Page: http://localhost:8000/certificate/{cert_id}
+🔗 Direct Verification: http://localhost:8000/{cert_id} (auto-verifies)
 Static Assets:
-📁 Static Files: http://localhost:5000/static/
+📁 Static Files: http://localhost:8000/static/
 🧪 Test Certificate IDs:
 test123 - Michael Chen (Data Science Essentials)
 CERT-001 - Habin Rahman (ReactJS with Supabase)
 HR08 - HABIN (PYTHON)
 🎯 Quick Test URLs:
-Direct verification: http://localhost:5000/test123
-API test: http://localhost:5000/api/certificate/test123
-Certificate display: http://localhost:5000/certificate/test123
+Direct verification: http://localhost:8000/test123
+API test: http://localhost:8000/api/certificate/test123
+Certificate display: http://localhost:8000/certificate/test123
 🌍 Browser Preview:
 Current preview: http://127.0.0.1:62540 (proxy to localhost:5000)
 
@@ -99,3 +99,9 @@ Direct Test URLs:
 https://certificate-three-wheat.vercel.app/HR08
 https://certificate-three-wheat.vercel.app/test123
 https://certificate-three-wheat.vercel.app/CERT-001
+
+
+render link: https://certificate-verification-backend-6r7x.onrender.com/
+render certificate link: https://certificate-verification-backend-6r7x.onrender.com/cert/HR08
+
+vercel link: https://certificate-three-wheat.vercel.app/
