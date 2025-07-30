@@ -525,6 +525,7 @@
 
       try {
         const response = await fetch(`https://certificate-verification-backend-6r7x.onrender.com/api/certificate/${encodeURIComponent(id)}`);
+
         const data = await response.json();
 
         if (response.ok && data.success) {
