@@ -6,7 +6,7 @@ from typing import Optional
 if not os.getenv('SUPABASE_URL'):
     os.environ['SUPABASE_URL'] = 'https://wyszrjhxucxblyvhrktn.supabase.co'
 if not os.getenv('SUPABASE_KEY'):
-    os.environ['SUPABASE_KEY'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+    os.environ['SUPABASE_KEY'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5c3pyamh4dWN4Ymx5dmhya3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4OTAzNzgsImV4cCI6MjA2NzQ2NjM3OH0.ZEPZIXsIVXbor8vY1uJM9VVVnody5iDJOgabbov14Xw'
 
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
@@ -42,41 +42,27 @@ MOCK_CERTIFICATES = [
 ]
 
 def get_certificate_by_id(certificate_id: str, base_url: str = ""):
-    """Get certificate data from Supabase by certificate ID and auto-set URL if missing."""
     global supabase
 
     if not supabase:
-        print("Supabase client not initialized, using mock data")
-        for cert in MOCK_CERTIFICATES:
-            if cert['certificate_id'].strip().lower() == certificate_id.strip().lower():
-                return {
-                    "student_name": cert['student_name'],
-                    "course": cert['course_name'],
-                    "completion_date": cert['completion_date'],
-                    "certificate_id": cert['certificate_id']
-                }
+        print("Supabase client not initialized")
         return None
 
     try:
-        print(f"Fetching certificate {certificate_id} from Supabase...")
-        response = supabase.table('certificates')\
-            .select('*')\
-            .eq('certificate_id', certificate_id.strip())\
-            .execute()
+        # Force uppercase search (recommended)
+        cert_id = certificate_id.strip().upper()
 
-        print(f"Supabase response: {response}")
+        response = supabase.table('certificates').select('*').eq('certificate_id', cert_id).execute()
 
         if response.data and len(response.data) > 0:
             cert = response.data[0]
+            cert_url = cert.get("certificate_url")
 
-            # Optional fix: sanitize certificate_url if missing
-            if not cert.get("certificate_url") and base_url:
-                cert_url = f"{base_url}/cert/{certificate_id.strip()}"
-                supabase.table("certificates")\
-                    .update({"certificate_url": cert_url})\
-                    .eq("certificate_id", certificate_id.strip())\
-                    .execute()
-                print(f"Set certificate_url: {cert_url}")
+            if not cert_url and base_url:
+                cert_url = f"{base_url}/cert/{cert_id}"
+                supabase.table("certificates").update({
+                    "certificate_url": cert_url
+                }).eq("certificate_id", cert_id).execute()
 
             return {
                 "student_name": cert['student_name'],
@@ -85,12 +71,13 @@ def get_certificate_by_id(certificate_id: str, base_url: str = ""):
                 "certificate_id": cert['certificate_id']
             }
 
-        print("❌ Certificate not found in Supabase.")
+        print(f"Certificate {cert_id} not found.")
         return None
 
     except Exception as e:
-        print(f"Error fetching certificate: {e}")
+        print(f"Error: {e}")
         return None
+
 
 
 
