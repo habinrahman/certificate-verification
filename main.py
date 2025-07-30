@@ -1,14 +1,14 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Request
 import os
+
 from supabase_config import get_certificate_by_id, get_all_certificates, supabase
 
 app = FastAPI(title="Certificate Verification API", version="1.0.0")
 
-# CORS for local and Vercel frontend
+# CORS for local, Vercel, and Render frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -21,47 +21,43 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Serve static assets (CSS, images, etc.)
+# Serve static files like CSS, images, etc.
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
 
 @app.get("/")
 async def read_root():
     try:
-        with open('index.html', 'r', encoding='utf-8') as f:
+        with open("index.html", "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error serving root page: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error loading index page: {str(e)}")
 
 
 @app.get("/home")
 async def home_page():
     try:
-        with open('home.html', 'r', encoding='utf-8') as f:
+        with open("home.html", "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error serving home page: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error loading home page: {str(e)}")
 
 
 @app.get("/verify")
-async def verification_portal():
+async def verify_page():
     try:
-        with open('index.html', 'r', encoding='utf-8') as f:
+        with open("index.html", "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error serving verification page: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error loading verify page: {str(e)}")
 
 
 @app.get("/test")
 async def test_page():
     try:
-        with open('test.html', 'r', encoding='utf-8') as f:
+        with open("test.html", "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error serving test page: {str(e)}")
-
-
+        raise HTTPException(status_code=500, detail=f"Error loading test page: {str(e)}")
 
 
 @app.get("/cert/{certificate_id}")
@@ -70,30 +66,22 @@ async def serve_certificate_page(certificate_id: str, request: Request):
         with open("certificate.html", "r", encoding="utf-8") as f:
             html_content = f.read()
 
-        cert_data = get_certificate_by_id(certificate_id)
+        base_url = str(request.base_url).rstrip("/")
+        cert_data = get_certificate_by_id(certificate_id, base_url=base_url)
+
         if not cert_data:
             return HTMLResponse(
                 content="<h2 style='text-align:center;color:#b91c1c;margin-top:3em'>Certificate Not Found</h2>",
                 status_code=404,
             )
 
-        # Use current domain dynamically (works for Render or Vercel)
-        current_domain = str(request.base_url).rstrip("/")
-        cert_url = f"{current_domain}/cert/{certificate_id}"
-
-        if not cert_data.get("certificate_url"):
-            # Optional: store certificate URL in database
-            supabase.table("certificates").update({
-                "certificate_url": cert_url
-            }).eq("certificate_id", certificate_id).execute()
-
-        # Replace placeholders in HTML
         html_content = (
             html_content.replace("{{student_name}}", cert_data["student_name"])
             .replace("{{course_name}}", cert_data["course"])
             .replace("{{completion_date}}", cert_data["completion_date"])
             .replace("{{certificate_id}}", cert_data["certificate_id"])
         )
+
         return HTMLResponse(content=html_content)
 
     except Exception as e:
@@ -112,7 +100,6 @@ async def get_all_certificates_route():
         return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
 
 
-
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "message": "API is running"}
@@ -121,30 +108,29 @@ async def health_check():
 @app.get("/debug")
 async def debug_info():
     return {
-        "supabase_url_set": bool(os.getenv('SUPABASE_URL')),
-        "supabase_key_set": bool(os.getenv('SUPABASE_KEY')),
-        "supabase_url": os.getenv('SUPABASE_URL', 'Not set'),
-        "environment": os.getenv('VERCEL_ENV', 'local')
+        "supabase_url_set": bool(os.getenv("SUPABASE_URL")),
+        "supabase_key_set": bool(os.getenv("SUPABASE_KEY")),
+        "supabase_url": os.getenv("SUPABASE_URL", "Not set"),
+        "environment": os.getenv("VERCEL_ENV", "local"),
     }
 
 
 @app.get("/debug/certificates")
 async def debug_all_certs():
     try:
-        response = supabase.table('certificates').select('*').execute()
+        response = supabase.table("certificates").select("*").execute()
         return response.data
     except Exception as e:
         return {"error": str(e)}
 
 
 @app.get("/{certificate_id}")
-async def serve_verification_page(certificate_id: str):
-    """Serve verification page directly for /HR08, /A1, etc."""
+async def serve_verification_direct(certificate_id: str):
     try:
-        with open('index.html', 'r', encoding='utf-8') as f:
+        with open("index.html", "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error serving verification page: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error loading verification page: {str(e)}")
 
 
 if __name__ == "__main__":
