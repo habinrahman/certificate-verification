@@ -2,7 +2,7 @@ import os
 from supabase import create_client, Client
 from typing import Optional
 
-# Set environment variables if not already set
+# Set environment variables if not set
 if not os.getenv('SUPABASE_URL'):
     os.environ['SUPABASE_URL'] = 'https://wyszrjhxucxblyvhrktn.supabase.co'
 if not os.getenv('SUPABASE_KEY'):
@@ -22,7 +22,7 @@ if SUPABASE_URL and SUPABASE_KEY:
 else:
     print("⚠️ Missing SUPABASE_URL or SUPABASE_KEY")
 
-# Mock fallback data
+# Fallback mock data
 MOCK_CERTIFICATES = [
     {
         "certificate_id": "CERT-001",
@@ -40,7 +40,6 @@ MOCK_CERTIFICATES = [
     }
 ]
 
-# ✅ Fetch one certificate
 def get_certificate_by_id(certificate_id: str, base_url: str = ""):
     global supabase
 
@@ -79,7 +78,6 @@ def get_certificate_by_id(certificate_id: str, base_url: str = ""):
         print(f"Error in get_certificate_by_id: {e}")
         return None
 
-# ✅ Fetch all certificates
 def get_all_certificates():
     if not supabase:
         print("⚠️ Using mock data")
@@ -92,7 +90,6 @@ def get_all_certificates():
         print(f"⚠️ Error fetching all certs: {e}")
         return MOCK_CERTIFICATES
 
-# ✅ Optional: Insert sample data
 def add_sample_data():
     if not supabase:
         print("❌ Supabase not initialized")
