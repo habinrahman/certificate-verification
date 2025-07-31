@@ -166,46 +166,40 @@ def get_certificate_by_id(certificate_id: str, base_url: str = ""):
     global supabase
 
     if not supabase:
-        print("⚠️ Using mock data")
-        for cert in MOCK_CERTIFICATES:
-            if cert['certificate_id'] == certificate_id:
-                return {
-                    "student_name": cert['student_name'],
-                    "course": cert['course_name'],
-                    "completion_date": cert['completion_date'],
-                    "certificate_id": cert['certificate_id']
-                }
+        print("Supabase client not initialized")
         return None
 
     try:
-        print(f"🔍 Fetching: {certificate_id}")
-        response = supabase.table('certificates').select('*').eq('certificate_id', certificate_id).execute()
+        cert_id = certificate_id.strip().upper()
+        response = supabase.table("certificates") \
+            .select("*") \
+            .ilike("certificate_id", cert_id) \
+            .execute()
 
         if response.data and len(response.data) > 0:
             cert = response.data[0]
             cert_url = cert.get("certificate_url")
 
             if not cert_url and base_url:
-                # 🔄 Auto-set URL if missing
-                cert_url = f"{base_url}/cert/{certificate_id}"
+                cert_url = f"{base_url}/cert/{cert_id}"
                 supabase.table("certificates").update({
                     "certificate_url": cert_url
-                }).eq("certificate_id", certificate_id).execute()
-                print(f"✅ certificate_url set for {certificate_id}")
+                }).eq("certificate_id", cert_id).execute()
 
             return {
-                "student_name": cert['student_name'],
-                "course": cert['course_name'],
-                "completion_date": cert['completion_date'],
-                "certificate_id": cert['certificate_id']
+                "student_name": cert["student_name"],
+                "course": cert["course_name"],
+                "completion_date": cert["completion_date"],
+                "certificate_id": cert["certificate_id"]
             }
 
-        print("❌ Certificate not found")
+        print(f"Certificate {cert_id} not found.")
         return None
 
     except Exception as e:
-        print(f"🚨 Supabase error: {e}")
+        print(f"Error: {e}")
         return None
+
 
 
 # Get all certs (used in /certificates route)
