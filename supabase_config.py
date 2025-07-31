@@ -41,7 +41,7 @@ MOCK_CERTIFICATES = [
     # Add others if needed
 ]
 
-ddef get_certificate_by_id(certificate_id: str, base_url: str = ""):
+def get_certificate_by_id(certificate_id: str, base_url: str = ""):
     global supabase
 
     if not supabase:
@@ -49,16 +49,13 @@ ddef get_certificate_by_id(certificate_id: str, base_url: str = ""):
         return None
 
     try:
-        # Force uppercase search (optional)
-        cert_id = certificate_id.strip()
+        # Force uppercase search
+        cert_id = certificate_id.strip().upper()
 
-        response = (
-            supabase
-            .table("certificates")
-            .select("*")
-            .ilike("certificate_id", cert_id)
+        response = supabase.table('certificates') \
+            .select('*') \
+            .ilike('certificate_id', cert_id) \
             .execute()
-        )
 
         if response.data and len(response.data) > 0:
             cert = response.data[0]
@@ -71,10 +68,10 @@ ddef get_certificate_by_id(certificate_id: str, base_url: str = ""):
                 }).eq("certificate_id", cert_id).execute()
 
             return {
-                "student_name": cert["student_name"],
-                "course": cert["course_name"],
-                "completion_date": cert["completion_date"],
-                "certificate_id": cert["certificate_id"],
+                "student_name": cert['student_name'],
+                "course": cert['course_name'],
+                "completion_date": cert['completion_date'],
+                "certificate_id": cert['certificate_id']
             }
 
         print(f"Certificate {cert_id} not found.")
@@ -83,8 +80,6 @@ ddef get_certificate_by_id(certificate_id: str, base_url: str = ""):
     except Exception as e:
         print(f"Error: {e}")
         return None
-
-
 
 
 
