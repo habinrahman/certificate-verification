@@ -2,7 +2,7 @@ import os
 from supabase import create_client, Client
 from typing import Optional
 
-# Set environment variables if not set
+# Set environment variables for local dev if not set
 if not os.getenv('SUPABASE_URL'):
     os.environ['SUPABASE_URL'] = 'https://wyszrjhxucxblyvhrktn.supabase.co'
 if not os.getenv('SUPABASE_KEY'):
@@ -22,7 +22,7 @@ if SUPABASE_URL and SUPABASE_KEY:
 else:
     print("⚠️ Missing SUPABASE_URL or SUPABASE_KEY")
 
-# Fallback mock data
+# Mock fallback
 MOCK_CERTIFICATES = [
     {
         "certificate_id": "CERT-001",
@@ -48,7 +48,9 @@ def get_certificate_by_id(certificate_id: str, base_url: str = ""):
         return None
 
     try:
+        # Force uppercase search
         cert_id = certificate_id.strip().upper()
+
         response = supabase.table('certificates') \
             .select('*') \
             .ilike('certificate_id', cert_id) \
@@ -65,17 +67,17 @@ def get_certificate_by_id(certificate_id: str, base_url: str = ""):
                 }).eq("certificate_id", cert_id).execute()
 
             return {
-                "student_name": cert["student_name"],
-                "course": cert["course_name"],
-                "completion_date": cert["completion_date"],
-                "certificate_id": cert["certificate_id"]
+                "student_name": cert['student_name'],
+                "course": cert['course_name'],
+                "completion_date": cert['completion_date'],
+                "certificate_id": cert['certificate_id']
             }
 
         print(f"Certificate {cert_id} not found.")
         return None
 
     except Exception as e:
-        print(f"Error in get_certificate_by_id: {e}")
+        print(f"Error: {e}")
         return None
 
 def get_all_certificates():
@@ -88,26 +90,4 @@ def get_all_certificates():
         return response.data if response.data else MOCK_CERTIFICATES
     except Exception as e:
         print(f"⚠️ Error fetching all certs: {e}")
-        return MOCK_CERTIFICATES
-
-def add_sample_data():
-    if not supabase:
-        print("❌ Supabase not initialized")
-        return
-
-    sample_data = [
-        {
-            "certificate_id": "SAMPLE-001",
-            "student_name": "Alice",
-            "course_name": "JavaScript Essentials",
-            "completion_date": "2025-06-01",
-            "certificate_url": "https://example.com/cert/SAMPLE-001"
-        }
-    ]
-
-    try:
-        for cert in sample_data:
-            supabase.table('certificates').insert(cert).execute()
-        print("✅ Sample data inserted")
-    except Exception as e:
-        print(f"❌ Failed to insert sample data: {e}")
+        ret
