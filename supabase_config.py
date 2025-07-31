@@ -171,10 +171,7 @@ def get_certificate_by_id(certificate_id: str, base_url: str = ""):
 
     try:
         cert_id = certificate_id.strip().upper()
-        response = supabase.table("certificates") \
-            .select("*") \
-            .ilike("certificate_id", cert_id) \
-            .execute()
+        response = supabase.table("certificates").select("*").ilike("certificate_id", cert_id).execute()
 
         if response.data and len(response.data) > 0:
             cert = response.data[0]
@@ -199,6 +196,7 @@ def get_certificate_by_id(certificate_id: str, base_url: str = ""):
     except Exception as e:
         print(f"Error: {e}")
         return None
+
 
 
 
