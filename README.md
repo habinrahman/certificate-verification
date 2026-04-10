@@ -6,8 +6,7 @@ A secure and scalable backend system designed to verify digital certificates usi
 🔗 https://certificate.microdegree.in/
 
 **Sample Certificate:**
-https://certificate.microdegree.in/cert/DOEC%20-%203222
-
+https://certificate.microdegree.in/cert/DOEC-11307
 ---
 
 ## 📌 Problem
