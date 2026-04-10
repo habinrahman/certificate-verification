@@ -1,47 +1,54 @@
-# Certificate Verification System
+# 🎓 Certificate Verification System
 
-## Problem
-Certificates are easy to forge and difficult to verify reliably.
+A secure and scalable backend system designed to verify digital certificates using unique IDs and QR codes. This solution ensures authenticity, prevents forgery, and enables real-time validation.
 
-## Solution
-A backend system that verifies certificates using unique IDs and signed responses, exposed via a public verification endpoint.
+## 🌐 Live Demo
+🔗 https://certificate.microdegree.in/
 
-## Architecture
-- Backend: FastAPI service handling verification requests
-- Database: Supabase (PostgreSQL) storing certificate records
-- API Layer: REST endpoints for validation
-- Deployment: Cloud-hosted, publicly accessible verification service
-
-## Features
-- QR / ID-based certificate verification
-- Public verification endpoint
-- Secure record lookup (no static PDFs)
-- Fast response times (API-based validation)
-- Real-world usage with live users
-
-## Tech Stack
-FastAPI · PostgreSQL (Supabase) · Docker · Cloud deployment
-
-## Live Demo
-https://certificate.microdegree.in/
-
-Example certificate:
+**Sample Certificate:**
 https://certificate.microdegree.in/cert/DOEC%20-%203222
 
-## Example Output
+---
 
-[2026-04-07 12:51:01Z] INFO GET /cert/{id} 200
+## 📌 Problem
+Traditional certificates are prone to forgery and difficult to verify efficiently.
 
-## Running the Project
+## 💡 Solution
+This system provides a secure, API-driven verification mechanism using unique certificate IDs stored in a cloud database.
 
-1. Clone repo  
-2. Install dependencies  
-3. Configure environment variables  
-4. Run FastAPI server  
+---
 
-## Production Notes
+## 🏗️ Architecture
+- **Backend:** FastAPI
+- **Database:** Supabase (PostgreSQL)
+- **API:** RESTful verification endpoints
+- **Frontend:** HTML, Tailwind CSS
+- **Deployment:** Vercel / Render / Cloud Platforms
+- **Containerization:** Docker
 
-- Designed for real-time verification
-- Handles concurrent requests
-- Deployed as a public-facing service
-- Avoids static document validation problems
+---
+
+## ✨ Features
+- ✅ Unique ID and QR-based verification
+- ✅ Secure certificate validation
+- ✅ Public verification endpoint
+- ✅ Real-time database lookup
+- ✅ Cloud-hosted and scalable
+- ✅ Fast and reliable API responses
+- ✅ Modern and responsive UI
+
+---
+
+## 🛠️ Tech Stack
+| Technology | Purpose |
+|------------|---------|
+| FastAPI | Backend Framework |
+| Supabase | PostgreSQL Database |
+| Python | Core Programming Language |
+| Tailwind CSS | Frontend Styling |
+| Docker | Containerization |
+| Vercel & Render | Deployment Platforms |
+
+---
+
+## 📂 Project Structure
